@@ -5,7 +5,7 @@ import os
 import json
 from torchvision.transforms.functional import InterpolationMode
 
-from .medical_dataset import generation_train, generation_eval, retrieval_train, retrieval_eval, diagnose_train, diagnose_eval, diagnose_knowledge
+from .medical_dataset import generation_train, generation_eval, retrieval_train, retrieval_eval, diagnose_train, diagnose_eval #, diagnose_knowledge
 from .pretrain_dataset import pretrain_dataset
 
 
@@ -68,9 +68,9 @@ def create_dataset(dataset, args, config):
         test_dataset = diagnose_eval(transform_test, args.chex_image_dir, args.chex_path, 'test', 'chexpert', args=args)
         return train_dataset, val_dataset, test_dataset
 
-    elif dataset =='diagnose_mimic_knowledge':
-        knowledge_dataset = diagnose_knowledge(args.chex_knowledge, dataset='mimic_cxr', args=args)
-        return knowledge_dataset
+    # elif dataset =='diagnose_mimic_knowledge':
+    #     knowledge_dataset = diagnose_knowledge(args.chex_knowledge, dataset='mimic_cxr', args=args)
+    #     return knowledge_dataset
     
     
 def create_sampler(datasets, shuffles, num_tasks, global_rank):

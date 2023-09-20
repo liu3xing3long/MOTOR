@@ -183,6 +183,7 @@ if __name__ == '__main__':
                         help='the patch to save the results of experiments')
     parser.add_argument('--task', type=str, default='pretrain', choices=['pretrain', 'retrieval', 'generation', 'diagnosis', 'vqa'],
                         help='the dataset to be used.')
+    parser.add_argument('--bert', type=str, default='cli')
 
     args = parser.parse_args()
 

@@ -19,6 +19,10 @@ from medical_knowledge.SK_knowledge import create_knowledge
 from medical_knowledge.GK_knowledge import *
 from models.tagencoder import TagEncoder
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 class BLIP_Pretrain(nn.Module):
     def __init__(self,                 
                  med_config = 'configs/bert_config_blip.json',
