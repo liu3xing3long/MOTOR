@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 
-from models.vit import interpolate_pos_embed
+from models.vit_blip import interpolate_pos_embed
 from transformers import BertTokenizer
 # from models.tokenization_bert import BertTokenizer
 
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     # GPU config
     parser.add_argument('--seed', type=int, default=5
                         , help='random seed for gpu.default:5')
-    parser.add_argument('--gpu', type=int, default=4,
+    parser.add_argument('--gpu', type=int, default=0,
                         help='use gpu device. default:0')
 
     # Model loading/saving

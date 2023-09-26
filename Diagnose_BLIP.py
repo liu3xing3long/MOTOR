@@ -77,17 +77,17 @@ if __name__ == '__main__':
 
     # Data input settings
     parser.add_argument('--image_dir', type=str,
-                        default='/mnt/data/linhaokun/project/dataset/MIMIC-CXR/mimic_cxr/images',
+                        default='./dataset/MIMIC-CXR/mimic_cxr/images',
                         help='the path to the directory containing the data.')
     parser.add_argument('-ann_path', type=str,
-                        default='/mnt/data/chenzicong_new/Medical_BLIP/data/MIMIC_CXR_knowledge_label.json',
+                        default='./dataset/MIMIC_CXR_knowledge_label.json',
                         help='the path to the directory containing the data.')
 
     parser.add_argument('--chex_image_dir', type=str,
-                        default='/data2/chenzicong/CX14_dataset/images',
+                        default='./dataset/CX14/images',
                         help='the path to the directory containing the data.')
     parser.add_argument('--chex_path', type=str,
-                        default='/data2/chenzicong/CX14/chexpert_diagnosis_new.json',
+                        default='./dataset/CX14_diagnosis_label.json',
                         help='the path to the directory containing the data.')
 
     # Data loader settings

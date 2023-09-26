@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 
-from models.vit import interpolate_pos_embed
+from models.vit_blip import interpolate_pos_embed
 from transformers import BertTokenizer
 # from models.tokenization_bert import BertTokenizer
 
