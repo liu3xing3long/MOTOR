@@ -68,7 +68,7 @@ if __name__ == '__main__':
                         default='./dataset/iu_xray/images&./dataset/MIMIC-CXR/mimic_cxr/images',
                         help='the path to the directory containing the data.')
     parser.add_argument('--ann_path', type=str,
-                        default='./dataset/iu_xray/annotation.json&./dataset/MIMIC-CXR/mimic_cxr/annotation.json',
+                        default='./dataset/KG/iu_annotation.json&./dataset/KG/mimic_annotation.json',
                         help='the path to the directory containing the data.')
     parser.add_argument('--knowledge_path', type=str,
                         default='./dataset/KG/iu_train_kg_AO.json&./dataset/KG/mimic_train_kg_AO.json',

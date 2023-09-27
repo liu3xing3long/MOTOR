@@ -60,6 +60,7 @@ class generation_eval(Dataset):
         self.image_root = image_root
         self.dataset = dataset
         self.args = args
+        self.max_words = 90
 
         
     def __len__(self):
@@ -80,7 +81,7 @@ class generation_eval(Dataset):
             image = Image.open(os.path.join(self.image_root, image_path[0])).convert('RGB')
             image = self.transform(image)
 
-        caption = pre_caption(ann['report'], 90)
+        caption = pre_caption(ann['report'], self.max_words)
 
         return image, caption
 
