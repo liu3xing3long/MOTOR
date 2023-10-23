@@ -83,7 +83,7 @@ class VQAFeatureDataset(Dataset):
         self.name = name
         assert name in ['train', 'test']
         if name == 'train':
-            trainset_path = os.path.join(dataroot, 'trainset_kg_new.json')
+            trainset_path = os.path.join(dataroot, 'trainset_new.json')
         else:
             trainset_path = os.path.join(dataroot, 'testset_new.json')
         self.images_path = os.path.join(dataroot, 'images')
@@ -105,12 +105,19 @@ class VQAFeatureDataset(Dataset):
 
         self.question_len = question_len
 
-        self.num_ans_candidates = 487  # 56 431
+        ########################################
+        # VQA-Med 2021 ??
+        # self.num_ans_candidates = 487  # 56 431
+        ########################################
+
         # close & open
         self.label2close = cPickle.load(open(os.path.join(dataroot, 'cache', 'close_label2ans.pkl'), 'rb'))
         self.label2open = cPickle.load(open(os.path.join(dataroot, 'cache', 'open_label2ans.pkl'), 'rb'))
         self.num_open_candidates = len(self.label2open)
         self.num_close_candidates = len(self.label2close)
+
+        # self.num_ans_candidates = 59  + 431
+        self.num_ans_candidates = self.num_close_candidates + self.num_open_candidates
 
         if args.autoencoder and args.maml:
             self.v_dim = args.v_dim * 2
@@ -153,11 +160,13 @@ class VQAFeatureDataset(Dataset):
             composed_target = torch.zeros(self.num_ans_candidates) # close + open
             if answer_target == 0:
                 target = torch.zeros(self.num_close_candidates)
+                # print(fr'shape, target {target.shape}, labels {labels.shape}, scores {scores.shape}', flush=True)
                 if labels is not None:
                     target.scatter_(0, labels, scores)
                 composed_target[:self.num_close_candidates] = target
             else:
                 target = torch.zeros(self.num_open_candidates)
+                # print(fr'shape, target {target.shape}, labels {labels.shape}, scores {scores.shape}', flush=True)
                 if labels is not None:
                     target.scatter_(0, labels, scores)
                 composed_target[self.num_close_candidates : self.num_ans_candidates] = target

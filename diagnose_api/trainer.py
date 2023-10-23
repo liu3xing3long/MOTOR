@@ -174,8 +174,8 @@ class Trainer(BaseTrainer):
                 print('Epoch: {}, Training Loss: {:.4f}'.format(epoch, print_loss / 5))
                 print_loss = 0
 
+
         log = {'train_loss': train_loss / len(self.train_dataloader)}
-        print("Finish Epoch {} Training, Start Eval...".format(epoch))
 
         self.model.eval()
         self.classifier.eval()
@@ -204,12 +204,17 @@ class Trainer(BaseTrainer):
                 outputs_pred = outputs > 0.5
                 outputs = outputs.float().cpu().numpy().tolist()
                 outputs_pred = outputs_pred.float().cpu().numpy().tolist()
+                labels = labels.cpu().numpy().tolist()
                 auc_pre.extend(outputs)
                 pre.extend(outputs_pred)
-                gt.extend(labels.cpu().numpy().tolist())
+                gt.extend(labels)
+
+                # print(fr'batch {batch_idx}, outputs_pred {outputs_pred}')
+                # print(fr'batch {batch_idx}, labels shape {labels}')
 
         pre = np.array(pre)
         gt = np.array(gt)
+
         auc_pre = np.array(auc_pre)
         val_f1_macro = metrics.f1_score(gt, pre, average="macro")
         val_f1_micro = metrics.f1_score(gt, pre, average="micro")
@@ -247,9 +252,10 @@ class Trainer(BaseTrainer):
                 outputs_pred = outputs > 0.5
                 outputs_pred = outputs_pred.float().cpu().numpy().tolist()
                 outputs = outputs.float().cpu().numpy().tolist()
+                labels = labels.cpu().numpy().tolist()
                 pre.extend(outputs_pred)
                 auc_pre.extend(outputs)
-                gt.extend(labels.cpu().numpy().tolist())
+                gt.extend(labels)
 
         pre = np.array(pre)
         gt = np.array(gt)

@@ -157,6 +157,9 @@ class BertSelfAttention(nn.Module):
         # such that the encoder's padding tokens are not attended to.
         is_cross_attention = encoder_hidden_states is not None
 
+        # print(fr'hidden states shape {hidden_states.shape}')
+        # print(fr'is_cross_attention {is_cross_attention}')
+
         if is_cross_attention:
             key_layer = self.transpose_for_scores(self.key(encoder_hidden_states))
             value_layer = self.transpose_for_scores(self.value(encoder_hidden_states))
@@ -173,6 +176,8 @@ class BertSelfAttention(nn.Module):
         query_layer = self.transpose_for_scores(mixed_query_layer)
 
         past_key_value = (key_layer, value_layer)
+
+        # print(fr'shape, query_layer {query_layer.shape}, key {key_layer.shape}, value {value_layer.shape}')
 
         # Take the dot product between "query" and "key" to get the raw attention scores.
         attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
@@ -885,7 +890,7 @@ class BertLMHeadModel(BertPreTrainedModel):
             use_cache = False
 
         outputs = self.bert(
-            input_ids,
+            input_ids=input_ids,
             attention_mask=attention_mask,
             position_ids=position_ids,
             head_mask=head_mask,

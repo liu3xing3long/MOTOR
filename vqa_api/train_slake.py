@@ -91,8 +91,6 @@ def train(args, model, question_model, train_loader, eval_loader, s_opt=None, s_
             q = q1.input_ids
 
             last_output_close, last_output_open, a_close, a_open = model(v, q, a, answer_target, q_mask)  # last_close 30 * 768 last_open 34 * 768 open
-
-
             preds_close, preds_open = model.classify(last_output_close, last_output_open)
             loss_close, loss_open=0,0
             # loss

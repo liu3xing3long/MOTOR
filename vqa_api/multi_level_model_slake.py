@@ -23,6 +23,10 @@ from classify_question import typeAttention_new, typeAttention_new2
 # from models.model_vqa_new_1 import ALBEF
 from models.blip_vqa_new import blip_vqa
 
+CLOSE_ANS_COUNT = 25
+OPEN_ANS_COUNT = 226
+ANS_COUNT = CLOSE_ANS_COUNT + OPEN_ANS_COUNT
+
 
 # Bilinear Attention
 class BiAttention(nn.Module):
@@ -94,7 +98,9 @@ def seperate(embedding, a, answer_target):  # q: b x 12 x 1024  v:  b x 1 x 128 
         else:
             indexs_open.append(i)
 
-    return embedding[indexs_close, :], embedding[indexs_open, :], a[indexs_open, 35:260], a[indexs_close, :35]
+    # return embedding[indexs_close, :], embedding[indexs_open, :], a[indexs_open, 35:260], a[indexs_close, :35]
+    return (embedding[indexs_close, :], embedding[indexs_open, :],
+            a[indexs_open, CLOSE_ANS_COUNT:ANS_COUNT], a[indexs_close, :CLOSE_ANS_COUNT])
 
 
 def seperate_origin(v, q, a, att, answer_target):  # q: b x 12 x 1024  v:  b x 1 x 128 answer_target : 1 x b
@@ -106,9 +112,9 @@ def seperate_origin(v, q, a, att, answer_target):  # q: b x 12 x 1024  v:  b x 1
         else:
             indexs_open.append(i)
 
-    return v[indexs_open, :, :], v[indexs_close, :, :], q[indexs_open, :, :], \
-           q[indexs_close, :, :], a[indexs_open, 35:260], a[indexs_close, :35], att[indexs_open, :], att[indexs_close,
-                                                                                                     :]
+    return (v[indexs_open, :, :], v[indexs_close, :, :], q[indexs_open, :, :], \
+           q[indexs_close, :, :], a[indexs_open, CLOSE_ANS_COUNT:ANS_COUNT], a[indexs_close, :CLOSE_ANS_COUNT],
+            att[indexs_open, :], att[indexs_close, :])
 
 
 def seperate_B(v, q, a, answer_target):  # q: b x 12 x 1024  v:  b x 1 x 128 answer_target : 1 x b
@@ -121,7 +127,8 @@ def seperate_B(v, q, a, answer_target):  # q: b x 12 x 1024  v:  b x 1 x 128 ans
             indexs_open.append(i)
 
     return v[indexs_open, :, :], v[indexs_close, :, :], q[indexs_open, :, :], \
-           q[indexs_close, :, :], a[indexs_open, 35:260], a[indexs_close, :35],
+           q[indexs_close, :, :], a[indexs_open, CLOSE_ANS_COUNT:ANS_COUNT], a[indexs_close, :CLOSE_ANS_COUNT],
+           # q[indexs_close, :, :], a[indexs_open, 35:260], a[indexs_close, :35],
 
 
 def seperate_C(a, answer_target):  # q: b x 12 x 1024  v:  b x 1 x 128 answer_target : 1 x b
@@ -132,7 +139,8 @@ def seperate_C(a, answer_target):  # q: b x 12 x 1024  v:  b x 1 x 128 answer_ta
             indexs_close.append(i)
         else:
             indexs_open.append(i)
-    return a[indexs_open, 35:260], a[indexs_close, :35]
+    # return a[indexs_open, 35:260], a[indexs_close, :35]
+    return a[indexs_open, CLOSE_ANS_COUNT:ANS_COUNT], a[indexs_close, :CLOSE_ANS_COUNT]
 
 
 # Create BAN model

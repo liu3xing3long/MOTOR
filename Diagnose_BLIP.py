@@ -1,6 +1,6 @@
 import torch
 import argparse
-import ruamel_yaml as yaml
+import ruamel.yaml as yaml
 import numpy as np
 from diagnose_api.trainer import Trainer
 from models.blip import blip_feature_extractor
@@ -128,6 +128,9 @@ if __name__ == '__main__':
     parser.add_argument('--task', type=str, default='diagnosis',
                         choices=['pretrain', 'retrieval', 'genenration', 'diagnosis', 'vqa'],
                         help='the dataset to be used.')
+    parser.add_argument('--visual', type=str, default='BLIP')
+    parser.add_argument('--bert', type=str, default='cli')
+
     args = parser.parse_args()
 
     config = yaml.load(open(args.config, 'r'), Loader=yaml.Loader)

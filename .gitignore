@@ -143,3 +143,6 @@ cython_debug/
 *.pyc
 dataset/
 output/
+
+.idea/Medical_clean.iml
+.idea/misc.xml

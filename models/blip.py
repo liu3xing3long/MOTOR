@@ -146,7 +146,7 @@ class BLIP_Decoder(nn.Module):
 
         decoder_targets[:,:self.prompt_length] = -100
 
-        decoder_output = self.text_decoder(text.input_ids,
+        decoder_output = self.text_decoder(input_ids=text.input_ids,
                                            attention_mask = text.attention_mask,
                                            encoder_hidden_states = image_embeds,
                                            encoder_attention_mask = image_atts,

@@ -1,6 +1,6 @@
 import argparse
 import os
-import ruamel_yaml as yaml
+import ruamel.yaml as yaml
 import numpy as np
 import random
 import time
@@ -12,7 +12,9 @@ import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 
+
 import utils
+
 from blip_original import create_dataset, create_loader, create_sampler
 from models.blip_pretrain import blip_pretrain
 from scheduler import create_scheduler
@@ -31,7 +33,7 @@ def train(model, data_loader, optimizer, epoch, warmup_steps, device, scheduler,
     metric_logger.add_meter('loss_mlc', utils.SmoothedValue(window_size=50, fmt='{value:.4f}'))
 
     header = 'Train Epoch: [{}]'.format(epoch)
-    print_freq = 50
+    print_freq = 10
     step_size = 100
     warmup_iterations = warmup_steps * step_size
 
@@ -108,7 +110,6 @@ def main(args, config):
     lr_scheduler, _ = create_scheduler(arg_sche, optimizer)
     warmup_steps = config['schedular']['warmup_epochs']
 
-
     start_epoch = 0
     if args.checkpoint:
         checkpoint = torch.load(args.checkpoint, map_location='cpu')
@@ -153,6 +154,7 @@ def main(args, config):
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', default='./configs/pretrain.yaml')
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_name', type=str, default='iu_xray', choices=['iu_xray', 'mimic_cxr'],
                         help='the dataset to be used.')
     parser.add_argument('--batch_size', type=int, default=16, help='the number of samples for a batch')
-    parser.add_argument('--epochs', type=int, default=30, help='the number of training epochs.')
+    parser.add_argument('--epochs', type=int, default=100, help='the number of training epochs.')
     parser.add_argument('--record_dir', type=str, default='records/',
                         help='the patch to save the results of experiments')
     parser.add_argument('--task', type=str, default='pretrain', choices=['pretrain', 'retrieval', 'generation', 'diagnosis', 'vqa'],

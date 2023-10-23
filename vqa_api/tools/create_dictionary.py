@@ -76,8 +76,11 @@ def create_dictionary(dataroot):
     dictionary = Dictionary()
     questions = []
     files = [
-        'VQA-Med-2020-Task1-VQAnswering-TrainVal-Sets/VQAMed2020-VQAnswering-TrainingSet/VQAnswering_2020_Train_QA_pairs.txt', #train dataset
-        'VQA-Med-2020-Task1-VQAnswering-TrainVal-Sets/VQAMed2020-VQAnswering-ValidationSet/VQAnswering_2020_Val_QA_Pairs.txt' #validate dateset
+        'VQA-Med-2019/train/All_QA_Pairs_train.txt',
+        'VQA-Med-2019/val/All_QA_Pairs_val.txt',
+
+        # 'VQA-Med-2020-Task1-VQAnswering-TrainVal-Sets/VQAMed2020-VQAnswering-TrainingSet/VQAnswering_2020_Train_QA_pairs.txt', #train dataset
+        # 'VQA-Med-2020-Task1-VQAnswering-TrainVal-Sets/VQAMed2020-VQAnswering-ValidationSet/VQAnswering_2020_Val_QA_Pairs.txt' #validate dateset
     ]
     for path in files:
         qa_pairs = os.path.join(dataroot, path)
@@ -110,7 +113,7 @@ def create_glove_embedding_init(idx2word, glove_file):
 
 if __name__ == '__main__':
 
-    data = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data/data')
+    data = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data/')
     d = create_dictionary(data)
     d.dump_to_file(data + '/dictionary.pkl')
 

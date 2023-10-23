@@ -126,8 +126,12 @@ class BaseTrainer(object):
             record_table = pd.DataFrame()
         else:
             record_table = pd.read_csv(record_path)
-        record_table = record_table.append(self.best_recorder['val'], ignore_index=True)
-        record_table = record_table.append(self.best_recorder['test'], ignore_index=True)
+
+        # record_table = record_table.append(self.best_recorder['val'], ignore_index=True)
+        record_table = pd.concat([record_table, pd.DataFrame([self.best_recorder['val']])], ignore_index=True)
+        # record_table = record_table.append(self.best_recorder['test'], ignore_index=True)
+        record_table = pd.concat([record_table, pd.DataFrame([self.best_recorder['test']])], ignore_index=True)
+
         record_table.to_csv(record_path, index=False)
 
     def _prepare_device(self, n_gpu_use):
@@ -226,6 +230,11 @@ class Trainer(BaseTrainer):
             if batch_idx %5 == 0:
                 print('Epoch: {}, Training Loss: {:.4f}'.format(epoch, print_loss/5))
                 print_loss = 0
+
+            #######################################
+            # break
+            #######################################
+
         log = {'train_loss': train_loss / len(self.train_dataloader)}
         print("Finish Epoch {} Training, Start Eval...".format(epoch))
 
@@ -235,7 +244,8 @@ class Trainer(BaseTrainer):
             for batch_idx, (images, captions) in enumerate(self.val_dataloader):
                 images = images.to(self.device)
                 ground_truths = captions
-                reports, knowledge_used = self.model.generate(images, sample=False, num_beams=3, max_length=90, min_length=5)
+                # reports, knowledge_used = self.model.generate(images, sample=False, num_beams=3, max_length=90, min_length=5)
+                reports, knowledge_used = self.model.generate(images, sample=True, max_length=90, min_length=5)
 
                 val_res.extend(reports)
                 val_gts.extend(ground_truths)
@@ -247,7 +257,7 @@ class Trainer(BaseTrainer):
         self.writer.add_scalar("data/b2/val", val_met['BLEU_2'], epoch)
         self.writer.add_scalar("data/b3/val", val_met['BLEU_3'], epoch)
         self.writer.add_scalar("data/b4/val", val_met['BLEU_4'], epoch)
-        self.writer.add_scalar("data/met/val", val_met['METEOR'], epoch)
+        # self.writer.add_scalar("data/met/val", val_met['METEOR'], epoch)
         self.writer.add_scalar("data/rou/val", val_met['ROUGE_L'], epoch)
         self.writer.add_scalar("data/cid/val", val_met['CIDER'], epoch)
 
@@ -257,7 +267,8 @@ class Trainer(BaseTrainer):
             test_gts, test_res = [], []
             for batch_idx, (images, captions) in enumerate(self.test_dataloader):
                 images = images.to(self.device)
-                reports, knowledge_used = self.model.generate(images, sample=False, num_beams=3, max_length=90, min_length=5)
+                # reports, knowledge_used = self.model.generate(images, sample=False, num_beams=3, max_length=90, min_length=5)
+                reports, knowledge_used = self.model.generate(images, sample=True, max_length=90, min_length=5)
                 ground_truths = captions
 
                 test_res.extend(reports)
@@ -270,7 +281,7 @@ class Trainer(BaseTrainer):
         self.writer.add_scalar("data/b2/test", test_met['BLEU_2'], epoch)
         self.writer.add_scalar("data/b3/test", test_met['BLEU_3'], epoch)
         self.writer.add_scalar("data/b4/test", test_met['BLEU_4'], epoch)
-        self.writer.add_scalar("data/met/test", test_met['METEOR'], epoch)
+        # self.writer.add_scalar("data/met/test", test_met['METEOR'], epoch)
         self.writer.add_scalar("data/rou/test", test_met['ROUGE_L'], epoch)
         self.writer.add_scalar("data/cid/test", test_met['CIDER'], epoch)
 

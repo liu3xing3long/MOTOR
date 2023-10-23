@@ -200,7 +200,8 @@ def compute_target(answers_dset, ans2label, name, root='data'):
 
 if __name__ == '__main__' :
     data = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
-    train_path = os.path.join(data,'VQA-Med-2020-Task1-VQAnswering-TrainVal-Sets/VQAMed2020-VQAnswering-TrainingSet/VQAnswering_2020_Train_QA_pairs.txt')
+    # train_path = os.path.join(data,'VQA-Med-2020-Task1-VQAnswering-TrainVal-Sets/VQAMed2020-VQAnswering-TrainingSet/VQAnswering_2020_Train_QA_pairs.txt')
+    train_path = os.path.join(data, 'VQA-Med-2019/train/All_QA_Pairs_train.txt')
     train_qa_pairs = pd.read_csv(train_path, sep='|', header=None, names=['id', 'question', 'answer'], index_col=None)
     occurence = filter_answers(train_qa_pairs, 0)  # select the answer with frequence over min_occurence
 
@@ -213,6 +214,7 @@ if __name__ == '__main__' :
 
     compute_target(train_qa_pairs, ans2label, 'train',data) #dump train target to .pkl {question,image_name,labels,scores}
 
-    validate_path = os.path.join(data,'VQA-Med-2020-Task1-VQAnswering-TrainVal-Sets/VQAMed2020-VQAnswering-ValidationSet/VQAnswering_2020_Val_QA_Pairs.txt')
+    # validate_path = os.path.join(data,'VQA-Med-2020-Task1-VQAnswering-TrainVal-Sets/VQAMed2020-VQAnswering-ValidationSet/VQAnswering_2020_Val_QA_Pairs.txt')
+    validate_path = os.path.join(data,'VQA-Med-2019/val/All_QA_Pairs_val.txt')
     val_qa_pairs = pd.read_csv(validate_path, sep='|', header=None, names=['id', 'question', 'answer'], index_col=None)
     compute_target(val_qa_pairs, ans2label, 'validate', data)   #dump validate target to .pkl {question,image_name,labels,scores}

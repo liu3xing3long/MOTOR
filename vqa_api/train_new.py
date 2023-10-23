@@ -118,7 +118,8 @@ def train(args, model, question_model, train_loader, eval_loader, s_opt=None, s_
         logger.info('[Train] Loss:{:.6f} , Train_Acc:{:.6f}%'.format(total_loss, train_score))
         # Evaluation
         if eval_loader is not None:
-            eval_score = evaluate_classifier(model, question_model, eval_loader, args, logger, t_queue, k_input_queue, k_mask_queue)
+            # eval_score = evaluate_classifier(model, question_model, eval_loader, args, logger, t_queue, k_input_queue, k_mask_queue)
+            eval_score = evaluate_classifier(model, question_model, eval_loader, args, logger)
             if eval_score > best_eval_score:
                 best_eval_score = eval_score
                 best_epoch = epoch
@@ -141,7 +142,8 @@ def evaluate_classifier(model, pretrained_model, dataloader, args, logger):
     model.eval()
     pretrained_model.eval()
 
-    tokenizer = init_tokenizer(args)
+    # tokenizer = init_tokenizer(args)
+    tokenizer = init_tokenizer()
 
     with torch.no_grad():
         for i, (v, q, a, answer_type, question_type, phrase_type, answer_target) in enumerate(dataloader):

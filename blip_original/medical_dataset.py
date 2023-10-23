@@ -20,7 +20,8 @@ class generation_train(Dataset):
     def __init__(self, transform, image_root, ann_root, max_words=90, prompt='', dataset='', args=None):
         
         self.annotation = json.load(open(os.path.join(ann_root),'r'))
-        self.ann = self.annotation
+        # self.ann = self.annotation
+        self.ann = self.annotation[0]['train']
         self.transform = transform
         self.image_root = image_root
         self.max_words = max_words      
@@ -55,14 +56,14 @@ class generation_train(Dataset):
 class generation_eval(Dataset):
     def __init__(self, transform, image_root, ann_root, split, dataset, args=None):
         self.annotation = json.load(open(os.path.join(ann_root), 'r'))
-        self.ann = self.annotation[split]
+        # self.ann = self.annotation[split]
+        self.ann = self.annotation[0][split]
         self.transform = transform
         self.image_root = image_root
         self.dataset = dataset
         self.args = args
         self.max_words = 90
 
-        
     def __len__(self):
         return len(self.ann)
     

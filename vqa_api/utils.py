@@ -19,7 +19,8 @@ import functools
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch._six import string_classes
+# from torch._six import string_classes
+string_classes = str
 from torch.utils.data.dataloader import default_collate
 import logging
 from vqa_api.tools.create_dictionary import Dictionary

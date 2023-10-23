@@ -1,6 +1,6 @@
 import torch
 import argparse
-import ruamel_yaml as yaml
+import ruamel.yaml as yaml
 import numpy as np
 from generation_api.metrics import compute_scores
 from generation_api.optimizers import build_optimizer_blip, build_lr_scheduler
@@ -8,7 +8,7 @@ from generation_api.trainer_blip import Trainer
 from generation_api.loss import compute_loss
 from models.blip import blip_decoder
 from blip_original import create_loader, create_dataset
-
+from transformers import BertTokenizer
 
 
 def main(args, config):
@@ -18,22 +18,23 @@ def main(args, config):
     np.random.seed(args.seed)
 
     # create tokenizer
+    # tokenizer = BertTokenizer.from_pretrained(args.text_encoder)
+    tokenizer = None
 
-    train_dataset, val_dataset, test_dataset = create_dataset('generation_%s'%args.dataset_name, args, config)
+    train_dataset, val_dataset, test_dataset = create_dataset('generation_%s' % args.dataset_name, args, config)
     samplers = [None, None, None]
-    train_dataloader, val_dataloader, test_dataloader = create_loader([train_dataset, val_dataset, test_dataset], samplers,
-                                                          batch_size=[args.batch_size] * 3,
-                                                          num_workers=[4, 4, 4],
-                                                          is_trains=[True, False, False],
-                                                          collate_fns=[None, None, None])
-
-
+    train_dataloader, val_dataloader, test_dataloader = create_loader(
+        [train_dataset, val_dataset, test_dataset],
+        samplers,
+        batch_size=[args.batch_size] * 3,
+        num_workers=[4, 4, 4],
+        is_trains=[True, False, False],
+        collate_fns=[None, None, None])
 
     # build model architecture
     model = blip_decoder(pretrained=args.pretrained, image_size=config['image_size'], vit=config['vit'],
                          vit_grad_ckpt=config['vit_grad_ckpt'], vit_ckpt_layer=config['vit_ckpt_layer'],
                          prompt=config['prompt'], args=args)
-
 
     # get function handles of loss and metrics
     criterion = compute_loss
@@ -44,7 +45,8 @@ def main(args, config):
     lr_scheduler = build_lr_scheduler(args, optimizer)
 
     # build trainer and start to train
-    trainer = Trainer(model, criterion, metrics, optimizer, args, lr_scheduler, train_dataloader, val_dataloader, test_dataloader, tokenizer)
+    trainer = Trainer(model, criterion, metrics, optimizer, args, lr_scheduler, train_dataloader, val_dataloader,
+                      test_dataloader, tokenizer)
     trainer.train()
 
 
@@ -62,7 +64,6 @@ if __name__ == '__main__':
     parser.add_argument('--world_size', default=1, type=int, help='number of distributed processes')
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
     parser.add_argument('--distributed', default=True, type=bool)
-
 
     parser.add_argument('--image_dir', type=str,
                         default='./dataset/iu_xray/images&./dataset/MIMIC-CXR/mimic_cxr/images',

@@ -1,6 +1,6 @@
 import argparse
 import os
-import ruamel_yaml as yaml
+import ruamel.yaml as yaml
 import numpy as np
 import random
 import time
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     parser.add_argument('--text_decoder', default='bert-base-uncased')
     parser.add_argument('--device', default='cuda')
     #parser.add_argument('--seed', default=42, type=int)
-    parser.add_argument('--world_size', default=2, type=int, help='number of distributed processes')
+    parser.add_argument('--world_size', default=1, type=int, help='number of distributed processes')
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
     parser.add_argument('--distributed', default=True, type=bool)
 
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     if args.add_typeatt1 or args.add_typeatt2:
         args.test_C = True
 
-    data = './data/'
+    data = './dataset/VQA_RAD/'
 
     args.data_dir = data
     # set GPU device

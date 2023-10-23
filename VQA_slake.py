@@ -1,6 +1,6 @@
 import argparse
 import os
-import ruamel_yaml as yaml
+import ruamel.yaml as yaml
 import numpy as np
 import random
 import time
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     if args.add_typeatt1 or args.add_typeatt2:
         args.test_C = True
 
-    data = './data/'
+    data = './dataset/SLAKE/'
 
     args.data_dir = data
     # set GPU device
@@ -218,10 +218,10 @@ if __name__ == '__main__':
     d = Dictionary.load_from_file(data + 'dictionary.pkl')
     # prepare the dataloader
     tokenizer = BertTokenizer.from_pretrained(args.text_encoder)
-    train_dataset = SLAKEDataset('train', args, d, dataroot='./data/Slake1.0/', tokenizer=tokenizer)
-
-    eval_dataset = SLAKEDataset('test', args, d, dataroot='./data/Slake1.0/', tokenizer=tokenizer)
+    train_dataset = SLAKEDataset('train', args, d, dataroot=data, tokenizer=tokenizer)
+    eval_dataset = SLAKEDataset('test', args, d, dataroot=data, tokenizer=tokenizer)
     print('number of training samples: %d' % len(train_dataset))
+
     samplers = [None, None]
     train_loader, eval_loader = create_loader([train_dataset, eval_dataset],
                                               samplers,

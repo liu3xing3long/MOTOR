@@ -1,22 +1,27 @@
 import math
+
+
 def cosine_lr_schedule(optimizer, epoch, max_epoch, init_lr, min_lr):
     """Decay the learning rate"""
     lr = (init_lr - min_lr) * 0.5 * (1. + math.cos(math.pi * epoch / max_epoch)) + min_lr
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
-        
+
+
 def warmup_lr_schedule(optimizer, step, max_step, init_lr, max_lr):
     """Warmup the learning rate"""
     lr = min(max_lr, init_lr + (max_lr - init_lr) * step / max_step)
     for param_group in optimizer.param_groups:
-        param_group['lr'] = lr    
+        param_group['lr'] = lr
 
-def step_lr_schedule(optimizer, epoch, init_lr, min_lr, decay_rate):        
+
+def step_lr_schedule(optimizer, epoch, init_lr, min_lr, decay_rate):
     """Decay the learning rate"""
-    lr = max(min_lr, init_lr * (decay_rate**epoch))
+    lr = max(min_lr, init_lr * (decay_rate ** epoch))
     for param_group in optimizer.param_groups:
-        param_group['lr'] = lr    
-        
+        param_group['lr'] = lr
+
+
 import numpy as np
 import io
 import os
@@ -26,6 +31,8 @@ import datetime
 
 import torch
 import torch.distributed as dist
+import torch.multiprocessing as mp
+
 
 class SmoothedValue(object):
     """Track a series of values and provide access to smoothed values over a
@@ -82,11 +89,11 @@ class SmoothedValue(object):
 
     def __str__(self):
         return self.fmt.format(
-            median=self.median,
-            avg=self.avg,
-            global_avg=self.global_avg,
-            max=self.max,
-            value=self.value)
+                median=self.median,
+                avg=self.avg,
+                global_avg=self.global_avg,
+                max=self.max,
+                value=self.value)
 
 
 class MetricLogger(object):
@@ -107,13 +114,13 @@ class MetricLogger(object):
         if attr in self.__dict__:
             return self.__dict__[attr]
         raise AttributeError("'{}' object has no attribute '{}'".format(
-            type(self).__name__, attr))
+                type(self).__name__, attr))
 
     def __str__(self):
         loss_str = []
         for name, meter in self.meters.items():
             loss_str.append(
-                "{}: {}".format(name, str(meter))
+                    "{}: {}".format(name, str(meter))
             )
         return self.delimiter.join(loss_str)
 
@@ -121,10 +128,10 @@ class MetricLogger(object):
         loss_str = []
         for name, meter in self.meters.items():
             loss_str.append(
-                "{}: {:.4f}".format(name, meter.global_avg)
+                    "{}: {:.4f}".format(name, meter.global_avg)
             )
-        return self.delimiter.join(loss_str)    
-    
+        return self.delimiter.join(loss_str)
+
     def synchronize_between_processes(self):
         for meter in self.meters.values():
             meter.synchronize_between_processes()
@@ -162,22 +169,22 @@ class MetricLogger(object):
                 eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
                 if torch.cuda.is_available():
                     print(log_msg.format(
-                        i, len(iterable), eta=eta_string,
-                        meters=str(self),
-                        time=str(iter_time), data=str(data_time),
-                        memory=torch.cuda.max_memory_allocated() / MB))
+                            i, len(iterable), eta=eta_string,
+                            meters=str(self),
+                            time=str(iter_time), data=str(data_time),
+                            memory=torch.cuda.max_memory_allocated() / MB))
                 else:
                     print(log_msg.format(
-                        i, len(iterable), eta=eta_string,
-                        meters=str(self),
-                        time=str(iter_time), data=str(data_time)))
+                            i, len(iterable), eta=eta_string,
+                            meters=str(self),
+                            time=str(iter_time), data=str(data_time)))
             i += 1
             end = time.time()
         total_time = time.time() - start_time
         total_time_str = str(datetime.timedelta(seconds=int(total_time)))
         print('{} Total time: {} ({:.4f} s / it)'.format(
-            header, total_time_str, total_time / len(iterable)))
-        
+                header, total_time_str, total_time / len(iterable)))
+
 
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
@@ -191,6 +198,7 @@ def compute_acc(logits, label, reduction='mean'):
         return ret.detach()
     elif reduction == 'mean':
         return ret.mean().item()
+
 
 def compute_n_params(model, return_str=True):
     tot = 0
@@ -207,11 +215,13 @@ def compute_n_params(model, return_str=True):
     else:
         return tot
 
+
 def setup_for_distributed(is_master):
     """
     This function disables printing when not in master process
     """
     import builtins as __builtin__
+
     builtin_print = __builtin__.print
 
     def print(*args, **kwargs):
@@ -251,14 +261,40 @@ def save_on_master(*args, **kwargs):
         torch.save(*args, **kwargs)
 
 
-def init_distributed_mode(args):
+def init_distributed_mode(args, port=29500):
+    # if mp.get_start_method(allow_none=True) != 'spawn':
+    #     mp.set_start_method('spawn')
+
     if 'RANK' in os.environ and 'WORLD_SIZE' in os.environ:
         args.rank = int(os.environ["RANK"])
         args.world_size = int(os.environ['WORLD_SIZE'])
         args.gpu = int(os.environ['LOCAL_RANK'])
     elif 'SLURM_PROCID' in os.environ:
+        proc_id = int(os.environ['SLURM_PROCID'])
+        ntasks = int(os.environ['SLURM_NTASKS'])
+        node_list = os.environ['SLURM_NODELIST']
+        num_gpus = torch.cuda.device_count()
+        torch.cuda.set_device(proc_id % num_gpus)
+
+        if '[' in node_list:
+            beg = node_list.find('[')
+            pos1 = node_list.find('-', beg)
+            if pos1 < 0:
+                pos1 = 1000
+            pos2 = node_list.find(',', beg)
+            if pos2 < 0:
+                pos2 = 1000
+            node_list = node_list[:min(pos1, pos2)].replace('[', '')
+        addr = node_list[8:].replace('-', '.')
+
+        os.environ['MASTER_PORT'] = str(port)
+        os.environ['MASTER_ADDR'] = addr
+        os.environ['WORLD_SIZE'] = str(ntasks)
+        os.environ['RANK'] = str(proc_id)
+
         args.rank = int(os.environ['SLURM_PROCID'])
         args.gpu = args.rank % torch.cuda.device_count()
+        args.world_size = ntasks
     else:
         print('Not using distributed mode')
         args.distributed = False
@@ -268,11 +304,10 @@ def init_distributed_mode(args):
 
     torch.cuda.set_device(args.gpu)
     args.dist_backend = 'nccl'
-    print('| distributed init (rank {}, word {}): {}'.format(
-        args.rank, args.world_size, args.dist_url), flush=True)
+    print('| distributed init (rank {}, world {}): {}'.format(
+            args.rank, args.world_size, args.dist_url), flush=True)
     torch.distributed.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
                                          world_size=args.world_size, rank=args.rank)
     torch.distributed.barrier()
-    setup_for_distributed(args.rank == 0)        
-        
-        
+    setup_for_distributed(args.rank == 0)
+
